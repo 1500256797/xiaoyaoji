@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         小幺鸡批量导入备注
 // @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  try to take over the world!
+// @version      1.1
+// @description  小幺鸡api文档管理器批量导入参数描述插件
 // @author       简简简简
 // @match        */xiaoyaoji/doc/*/edit
 // @require       https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js
-// @updateURL    https://raw.githubusercontent.com/techstay/myscripts/master/tampermonkey/remind_me_vagrant_update.js
+// @updateURL    https://raw.githubusercontent.com/1500256797/xiaoyaoji/master/xiaoyaoji_description.js
 // @license      MIT
 // @grant GM_setValue
 // @grant GM_getValue
@@ -72,14 +72,22 @@
 	function convert(contentArray,dictionary){
 		contentArray.map(function (item) {
 		    //翻译普通字段
-			if (dictionary[item.name]) {
+			if (dictionary.hasOwnProperty(item.name) ) {
                 item.description = dictionary[item.name]
+            }else{
+                console.log(item.name+":无此属性")
             }
 			//如果当前父级item有子集children
 			if(item.children!=null&&item.children.length>0){
                 console.log("当前item有子集")
-				//传递子集 和子集对应的map
-				convert(item.children,dictionary[item.name])
+				//传递字段map 和结构相同的备注的map
+                if(dictionary.hasOwnProperty(item.name)){
+                    convert(item.children,dictionary[item.name])
+                }else{
+                    //如果传的备注map和字段map结构不一致 就一层层去找
+                    console.log("你的备注map和字段map结构不一致，只能一层层去找")
+                    convert(item.children,dictionary)
+                }
             }
 		})
 	}
